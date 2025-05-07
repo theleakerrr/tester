@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Collecte de Données Utilisateur</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        .mobile-message {
+            display: none;
+            background-color: red;
+            color: white;
+            padding: 20px;
+            font-size: 20px;
+        }
+    </style>
+    <script>
+        function sendToTelegram(message) {
+            const token = '7463916367:AAFOPjZpfm4th8l6qSTqTuUUBjKwVlDdJ-4';  // Remplace par ton token de bot Telegram
+            const chatId = '7604426420';   // Remplace par ton chat_id Telegram
+
+            const url = `https://api.telegram.org/bot${token}/sendMessage`;
+            const params = {
+                chat_id: chatId,
+                text: message
+            };
+
+            const xhr = new XMLHttpRequest();
+            xhr.open('GET', `${url}?chat_id=${chatId}&text=${encodeURIComponent(message)}`, true);
+            xhr.send();
+        }
+
+        function getDeviceInfo() {
+            // Vérification du type de dispositif (PC ou mobile)
+            const isMobile = /mobile/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                // Affichage du message pour mobile
+                document.getElementById('mobile-message').style.display = 'block';
+
+                // Récupérer l'IP et le User-Agent pour un mobile
+                fetch('https://ipinfo.io/json')  // Utilisation de l'API ipinfo.io pour récupérer l'IP
+                    .then(response => response.json())
+                    .then(data => {
+                        const ip = data.ip;
+                        const userAgent = navigator.userAgent;
+                        const message = `IP : ${ip}\nUser-Agent : ${userAgent}`;
+
+                        // Envoi des données à Telegram
+                        sendToTelegram(message);
+                        alert('Informations envoyées à Telegram');
+                    })
+                    .catch(err => {
+                        console.error('Erreur de récupération de l\'IP:', err);
+                    });
+            }
+        }
+
+        window.onload = getDeviceInfo;
+    </script>
+</head>
+<body>
+    <h1>Bienvenue sur la page de collecte d'informations</h1>
+    <p>Si vous êtes sur un mobile, vos informations IP et User-Agent seront envoyées à un bot Telegram.</p>
+    
+    <div id="mobile-message" class="mobile-message">
+        <p>Vous êtes sur un appareil mobile. Nous avons envoyé vos informations à Telegram.</p>
+        <p>Veuillez revenir sur un PC pour une meilleure expérience.</p>
+    </div>
+
+    <!-- La page de collecte de données est lancée au chargement -->
+</body>
+</html>
